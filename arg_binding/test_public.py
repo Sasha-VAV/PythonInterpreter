@@ -20,7 +20,6 @@ from .arg_binding import (
 def test_positional() -> None:
     def foo(a, b, c): pass      # type: ignore
     foo = cast(FunctionType, foo)
-
     assert bind_args(foo, 1, 2, 3) \
         == dict(a=1, b=2, c=3)
     assert bind_args(foo, 'abc', [1, 2, 3], None) \
@@ -45,6 +44,9 @@ def test_keyword() -> None:
         == dict(a=1, b=2, c=3)
     assert bind_args(foo, c=None, a='abc', b=[1, 2, 3]) \
         == dict(a='abc', b=[1, 2, 3], c=None)
+    # My tests
+    assert bind_args(foo, 1, 2, c=3) \
+        == dict(a=1, b=2, c=3)
 
 
 def test_keyword_wrong() -> None:
@@ -121,7 +123,8 @@ def test_varkwargs() -> None:
 def test_everything() -> None:
     def foo(a, b, c=None, *args, d, e, f='default', **kwargs): pass  # type: ignore
     foo = cast(FunctionType, foo)
-
+    assert bind_args(foo, 1, 2, 3, 4, 5, 6, d=4, e=5, z=100) \
+        == dict(a=1, b=2, c=3, args=(4, 5, 6), d=4, e=5, f='default', kwargs={'z': 100})
     assert bind_args(foo, 1, 2, 3, d=4, e=5, f=6) \
         == dict(a=1, b=2, c=3, args=(), d=4, e=5, f=6, kwargs={})
     assert bind_args(foo, 1, 2, d=4, e=5) \
